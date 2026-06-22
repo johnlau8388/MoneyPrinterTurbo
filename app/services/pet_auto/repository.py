@@ -114,8 +114,19 @@ def delete_profile(pet_id: str) -> bool:
     return cursor.rowcount > 0
 
 
+def _reuse_existing_plan_identity(plan: PetContentPlan) -> PetContentPlan:
+    existing = get_plan_by_pet_date(plan.pet_id, plan.plan_date)
+    if not existing or existing.plan_id == plan.plan_id:
+        return plan
+    data = plan.model_dump()
+    data["plan_id"] = existing.plan_id
+    data["created_at"] = existing.created_at
+    return PetContentPlan(**data)
+
+
 def save_plan(plan: PetContentPlan) -> PetContentPlan:
     init_db()
+    plan = _reuse_existing_plan_identity(plan)
     payload = plan.model_dump()
     with connect() as conn:
         conn.execute(
