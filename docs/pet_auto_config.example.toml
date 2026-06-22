@@ -1,0 +1,4 @@
+# Copy these keys under [app] in config.toml to enable daily pet automation.
+
+pet_auto_enabled = true
+pet_auto_daily_time = "09:00"
