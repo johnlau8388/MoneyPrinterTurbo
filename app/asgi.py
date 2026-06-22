@@ -12,6 +12,7 @@ from loguru import logger
 from app.config import config
 from app.models.exception import HttpException
 from app.router import root_api_router
+from app.services.pet_auto.scheduler import pet_auto_scheduler
 from app.utils import utils
 
 
@@ -36,7 +37,6 @@ def get_application() -> FastAPI:
 
     Returns:
        FastAPI: Application object instance.
-
     """
     instance = FastAPI(
         title=config.project_name,
@@ -75,8 +75,10 @@ app.mount("/", StaticFiles(directory=public_dir, html=True), name="")
 @app.on_event("shutdown")
 def shutdown_event():
     logger.info("shutdown event")
+    pet_auto_scheduler.stop()
 
 
 @app.on_event("startup")
 def startup_event():
     logger.info("startup event")
+    pet_auto_scheduler.start()
